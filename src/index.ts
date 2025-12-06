@@ -1,36 +1,21 @@
-import dotenv from 'dotenv';
-import express from 'express';
-import mongoose from 'mongoose';
-import cors from 'cors';
-import authRoutes from './routes/auth';
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import mongoose from "mongoose";
+import authRouter from "./routes/auth";
+
 dotenv.config();
 
-const PORT = process.env.PORT
-const MONGO_URL = process.env.MONGO_URL as string
-
 const app = express();
-
 app.use(express.json());
-app.use(
-    cors({
-        origin: ["http://localhost:5173"],
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-        credentials: true,
-    })
-)
+app.use(cors({ origin: ["http://localhost:5173"] })); // Allow Frontend
 
-app.use('/api/auth', authRoutes)
+app.use("/api/v1/auth", authRouter);
 
 mongoose
-    .connect(MONGO_URL)
-    .then(() => {
-        console.log('Connected to MongoDB');
-    })
-    .catch((err) => {
-        console.error(err)
-        process.exit(1)
-    })
-
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+  .connect(process.env.MONGO_URL as string)
+  .then(() => {
+    console.log("DB connected");
+    app.listen(process.env.PORT, () => console.log("Server running", process.env.PORT));
+  })
+  .catch((err) => console.error(err));
