@@ -5,7 +5,7 @@ import { signAccessToken, signRefreshToken } from "../utils/tokens";
 import { AuthRequest } from "../middleware/auth";
 import jwt from "jsonwebtoken";
 
-// 1. Register Doctor (Public)
+// Register Doctor (Public)
 export const registerDoctor = async (req: Request, res: Response) => {
   try {
     const { name, email, password, confirmationId } = req.body;
@@ -32,30 +32,8 @@ export const registerDoctor = async (req: Request, res: Response) => {
   }
 };
 
-// 2. Register Counter (Doctor Only)
-export const registerCounter = async (req: Request, res: Response) => {
-  try {
-    const { name, email, password } = req.body;
 
-    const existingUser = await User.findOne({ email });
-    if (existingUser) return res.status(400).json({ message: "Email exists" });
-
-    const hash = await bcrypt.hash(password, 10);
-
-    await User.create({
-      name,
-      email,
-      password: hash,
-      roles: [Role.COUNTER],
-    });
-
-    res.status(201).json({ message: "Counter staff registered" });
-  } catch (err) {
-    res.status(500).json({ message: "Server error" });
-  }
-};
-
-// 3. Login
+// Login
 export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
@@ -82,7 +60,7 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
-// 4. Refresh Token
+//  Refresh Token
 export const refreshToken = async (req: Request, res: Response) => {
   try {
     const { token } = req.body;
@@ -100,7 +78,7 @@ export const refreshToken = async (req: Request, res: Response) => {
   }
 };
 
-// 5. Get Profile
+//  Get Profile
 export const getMyProfile = async (req: AuthRequest, res: Response) => {
   const user = await User.findById(req.user.sub).select("-password");
   res.status(200).json({ data: user });

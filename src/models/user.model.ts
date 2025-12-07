@@ -12,6 +12,7 @@ export interface IUser extends Document {
   password: string;
   roles: Role[];
   isActive: boolean;
+  doctorId?: mongoose.Types.ObjectId;
 }
 
 const userSchema = new Schema<IUser>({
@@ -20,6 +21,7 @@ const userSchema = new Schema<IUser>({
   password: { type: String, required: true },
   roles: { type: [String], enum: Object.values(Role), default: [Role.DOCTOR] },
   isActive: { type: Boolean, default: true },
+  doctorId: { type: Schema.Types.ObjectId, ref: "User", default: null },
 });
 
 export const User = mongoose.model<IUser>("User", userSchema);
