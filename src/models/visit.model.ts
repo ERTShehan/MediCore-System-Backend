@@ -6,7 +6,10 @@ export interface IVisit extends Document {
   phone: string;
   appointmentNumber: number;
   status: "pending" | "in_progress" | "completed";
+  diagnosis: string;
+  prescription: string;
   date: Date;
+  doctorId: mongoose.Types.ObjectId;
 }
 
 const VisitSchema = new Schema<IVisit>({
@@ -19,7 +22,14 @@ const VisitSchema = new Schema<IVisit>({
     enum: ['pending', 'in_progress', 'completed'], 
     default: 'pending' 
   },
-  date: { type: Date, default: Date.now }
+
+  diagnosis: { type: String, default: "" }, 
+  prescription: { type: String, default: "" },
+  
+  date: { type: Date, default: Date.now },
+  doctorId: { type: Schema.Types.ObjectId, ref: "User", required: true }
 });
+
+VisitSchema.index({ date: 1, doctorId: 1, appointmentNumber: 1 });
 
 export const Visit = mongoose.model<IVisit>("Visit", VisitSchema);
