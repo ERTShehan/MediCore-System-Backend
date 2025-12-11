@@ -47,10 +47,10 @@ export const createVisit = async (req: AuthRequest, res: Response) => {
   }
 };
 
-// Doctor: "Request Patient" (Get Next Pending & Set to In-Progress)
+// Doctor: "Request Patient"
 export const requestNextPatient = async (req: AuthRequest, res: Response) => {
     try {
-        const doctorId = req.user.sub; // log wela inna doctor ge ID
+        const doctorId = req.user.sub;
         const { start, end } = getStartAndEndOfDay();
 
         const existingInProgress = await Visit.findOne({
@@ -85,7 +85,7 @@ export const requestNextPatient = async (req: AuthRequest, res: Response) => {
 // Doctor: Submit Treatment
 export const submitTreatment = async (req: AuthRequest, res: Response) => {
     try {
-        const { id } = req.params; // Visit ID
+        const { id } = req.params;
         const { diagnosis, prescription } = req.body;
 
         const visit = await Visit.findById(id);
@@ -103,7 +103,7 @@ export const submitTreatment = async (req: AuthRequest, res: Response) => {
     }
 };
 
-//Doctor: Get Patient History
+// Doctor: Get Patient History
 export const getPatientHistory = async (req: AuthRequest, res: Response) => {
     try {
         const { phone } = req.params;
@@ -121,12 +121,11 @@ export const getPatientHistory = async (req: AuthRequest, res: Response) => {
     }
 };
 
-// Counter: Get Current Status (To show Alert & Current Number)
+// Counter: Get Queue Status (Includes Total Count)
 export const getQueueStatus = async (req: AuthRequest, res: Response) => {
     try {
         let doctorId = req.user.sub;
         
-        // If Counter, find the linked doctor ID
         if (req.user.roles.includes(Role.COUNTER)) {
             const user = await User.findById(req.user.sub);
             if (user && user.doctorId) doctorId = user.doctorId.toString();
@@ -134,12 +133,20 @@ export const getQueueStatus = async (req: AuthRequest, res: Response) => {
 
         const { start, end } = getStartAndEndOfDay();
 
+        // 1. Get Total Count for Today (All statuses: pending, in_progress, completed)
+        const totalToday = await Visit.countDocuments({
+            doctorId: doctorId,
+            date: { $gte: start, $lte: end }
+        });
+
+        // 2. Get Current Patient
         const current = await Visit.findOne({
             doctorId: doctorId,
             date: { $gte: start, $lte: end },
             status: 'in_progress'
         });
 
+        // 3. Get Completed List
         const completed = await Visit.find({
             doctorId: doctorId,
             date: { $gte: start, $lte: end },
@@ -147,8 +154,9 @@ export const getQueueStatus = async (req: AuthRequest, res: Response) => {
         }).sort({ appointmentNumber: -1 });
 
         res.status(200).json({
-            currentPatient: current, // null if no one is in
-            completedList: completed
+            currentPatient: current,
+            completedList: completed,
+            totalToday: totalToday
         });
 
     } catch (err) {
@@ -156,7 +164,7 @@ export const getQueueStatus = async (req: AuthRequest, res: Response) => {
     }
 };
 
-// Counter: Get Single Visit Details (bill print kirimata)
+// Counter: Get Single Visit Details
 export const getVisitDetails = async (req: AuthRequest, res: Response) => {
     try {
         const { id } = req.params;

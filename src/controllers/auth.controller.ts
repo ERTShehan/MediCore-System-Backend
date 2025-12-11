@@ -39,7 +39,15 @@ export const login = async (req: Request, res: Response) => {
     const { email, password } = req.body;
     const user = (await User.findOne({ email })) as IUser | null;
 
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    if (!user) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    if (!user.isActive) {
+      return res.status(403).json({ message: "Account is inactive" });
+    }
+
+    if (!(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
