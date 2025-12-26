@@ -11,6 +11,43 @@ const getStartAndEndOfDay = () => {
     return { start, end };
 };
 
+export const createEmergencyVisit = async (req: AuthRequest, res: Response) => {
+  try {
+    const { patientName, age, phone, diagnosis, prescription } = req.body;
+    
+    const doctorId = req.user.sub; 
+
+    const { start, end } = getStartAndEndOfDay();
+
+    const count = await Visit.countDocuments({
+      doctorId: doctorId,
+      date: { $gte: start, $lte: end },
+    });
+    
+    const appointmentNumber = count + 1;
+
+    const newEmergencyVisit = await Visit.create({
+      patientName,
+      age,
+      phone,
+      appointmentNumber,
+      visitType: 'emergency',
+      status: 'completed',
+      diagnosis,
+      prescription,
+      doctorId: doctorId,
+      date: new Date()
+    });
+
+    res.status(201).json({ 
+        message: "Emergency patient registered and treated.", 
+        data: newEmergencyVisit 
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Error registering emergency patient" });
+  }
+};
+
 // Create Visit (Counter)
 export const createVisit = async (req: AuthRequest, res: Response) => {
   try {
@@ -36,6 +73,7 @@ export const createVisit = async (req: AuthRequest, res: Response) => {
       age,
       phone,
       appointmentNumber,
+      visitType: 'regular',
       status: 'pending',
       doctorId: doctorId,
       date: new Date()
@@ -53,26 +91,34 @@ export const requestNextPatient = async (req: AuthRequest, res: Response) => {
         const doctorId = req.user.sub;
         const { start, end } = getStartAndEndOfDay();
 
+        // Check for existing in-progress patient
         const existingInProgress = await Visit.findOne({
             doctorId,
             date: { $gte: start, $lte: end },
             status: "in_progress"
         });
 
+        // Do NOT return the patient automatically
         if (existingInProgress) {
-            return res.status(200).json(existingInProgress);
+            return res.status(400).json({ 
+                message: "Please complete the current patient's consultation first.",
+                patient: existingInProgress // Optional: Send data if needed for frontend logic
+            });
         }
 
+        // Find next pending patient
         const nextPatient = await Visit.findOne({
             doctorId,
             date: { $gte: start, $lte: end },
-            status: 'pending'
+            status: 'pending',
+            visitType: 'regular'
         }).sort({ appointmentNumber: 1 });
 
         if (!nextPatient) {
             return res.status(404).json({ message: "No patients in the queue" });
         }
 
+        // Update status
         nextPatient.status = 'in_progress';
         await nextPatient.save();
 
@@ -121,7 +167,7 @@ export const getPatientHistory = async (req: AuthRequest, res: Response) => {
     }
 };
 
-// Counter: Get Queue Status (Includes Total Count)
+// Counter & Doctor: Get Queue Status
 export const getQueueStatus = async (req: AuthRequest, res: Response) => {
     try {
         let doctorId = req.user.sub;
@@ -133,30 +179,30 @@ export const getQueueStatus = async (req: AuthRequest, res: Response) => {
 
         const { start, end } = getStartAndEndOfDay();
 
-        // 1. Get Total Count for Today (All statuses: pending, in_progress, completed)
         const totalToday = await Visit.countDocuments({
             doctorId: doctorId,
             date: { $gte: start, $lte: end }
         });
 
-        // 2. Get Current Patient
         const current = await Visit.findOne({
             doctorId: doctorId,
             date: { $gte: start, $lte: end },
             status: 'in_progress'
         });
 
-        // 3. Get Completed List
         const completed = await Visit.find({
             doctorId: doctorId,
             date: { $gte: start, $lte: end },
             status: 'completed'
         }).sort({ appointmentNumber: -1 });
 
+        const completedCount = completed.length;
+
         res.status(200).json({
             currentPatient: current,
             completedList: completed,
-            totalToday: totalToday
+            totalToday: totalToday,
+            completedCount: completedCount
         });
 
     } catch (err) {
@@ -172,5 +218,29 @@ export const getVisitDetails = async (req: AuthRequest, res: Response) => {
         res.status(200).json(visit);
     } catch (err) {
         res.status(500).json({ message: "Error fetching details" });
+    }
+};
+
+// Get All Today's Visits
+export const getAllTodayVisits = async (req: AuthRequest, res: Response) => {
+    try {
+        let doctorId = req.user.sub;
+        
+        if (req.user.roles.includes(Role.COUNTER || Role.DOCTOR)) {
+            const user = await User.findById(req.user.sub);
+            if (user && user.doctorId) doctorId = user.doctorId.toString();
+        }
+
+        const { start, end } = getStartAndEndOfDay();
+
+        const visits = await Visit.find({
+            doctorId: doctorId,
+            date: { $gte: start, $lte: end }
+        }).sort({ appointmentNumber: 1 });
+
+        res.status(200).json({ data: visits });
+
+    } catch (err) {
+        res.status(500).json({ message: "Error fetching daily records" });
     }
 };

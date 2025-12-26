@@ -5,6 +5,7 @@ export interface IVisit extends Document {
   age: number;
   phone: string;
   appointmentNumber: number;
+  visitType: "regular" | "emergency";
   status: "pending" | "in_progress" | "completed";
   diagnosis: string;
   prescription: string;
@@ -17,13 +18,19 @@ const VisitSchema = new Schema<IVisit>({
   age: { type: Number, required: true },
   phone: { type: String, required: true },
   appointmentNumber: { type: Number, required: true },
-  status: { 
+  visitType: { 
     type: String, 
-    enum: ['pending', 'in_progress', 'completed'], 
-    default: 'pending' 
+    enum: ['regular', 'emergency'], 
+    default: 'regular' 
+  },
+  
+  status: {
+    type: String,
+    enum: ['pending', 'in_progress', 'completed'],
+    default: 'pending'
   },
 
-  diagnosis: { type: String, default: "" }, 
+  diagnosis: { type: String, default: "" },
   prescription: { type: String, default: "" },
   
   date: { type: Date, default: Date.now },

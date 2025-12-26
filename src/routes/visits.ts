@@ -5,13 +5,17 @@ import {
     submitTreatment, 
     getPatientHistory, 
     getQueueStatus,
-    getVisitDetails
+    getVisitDetails,
+    getAllTodayVisits,
+    createEmergencyVisit
 } from "../controllers/visit.controller";
 import { authenticate } from "../middleware/auth";
 import { requireRole } from "../middleware/role";
 import { Role } from "../models/user.model";
 
 const router = Router();
+
+router.get("/today", authenticate, getAllTodayVisits);
 
 // Create Visit (Register Patient)
 router.post("/create", authenticate, requireRole([Role.COUNTER]), createVisit);
@@ -28,5 +32,7 @@ router.get("/status", authenticate, getQueueStatus);
 
 // For Print
 router.get("/details/:id", authenticate, getVisitDetails);
+
+router.post("/emergency", authenticate, requireRole([Role.DOCTOR]), createEmergencyVisit);
 
 export default router;
