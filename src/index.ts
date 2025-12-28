@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import authRouter from "./routes/auth";
 import staffRouter from "./routes/staff";
 import visitRouter from "./routes/visits";
+import templateRouter from "./routes/templates";
 
 dotenv.config();
 
@@ -15,6 +16,7 @@ app.use(cors({ origin: ["http://localhost:5173"] }));
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/staff", staffRouter);
 app.use("/api/v1/visits", visitRouter);
+app.use("/api/v1/templates", templateRouter);
 
 mongoose
   .connect(process.env.MONGO_URL as string)
