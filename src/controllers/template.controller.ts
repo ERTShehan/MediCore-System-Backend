@@ -75,6 +75,27 @@ export const getMyTemplates = async (req: AuthRequest, res: Response) => {
   }
 };
 
+export const searchSavedTemplates = async (req: AuthRequest, res: Response) => {
+  try {
+    const doctorId = req.user.sub;
+    const { q } = req.query; // Get search query from URL
+    if (!q || typeof q !== 'string') {
+        return res.status(200).json({ data: [] });
+    }
+
+    // Find templates that start with or contain the letters (Case insensitive)
+    const templates = await PrescriptionTemplate.find({
+        doctorId: doctorId,
+        name: { $regex: q, $options: "i" } 
+    }).limit(10);
+
+    res.status(200).json({ data: templates });
+
+  } catch (err) {
+    res.status(500).json({ message: "Error searching templates" });
+  }
+};
+
 export const deleteTemplate = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;

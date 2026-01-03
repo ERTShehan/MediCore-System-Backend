@@ -14,4 +14,6 @@ const TemplateSchema = new Schema<IPrescriptionTemplate>({
   createdAt: { type: Date, default: Date.now }
 });
 
+TemplateSchema.index({ name: 1, doctorId: 1 });
+
 export const PrescriptionTemplate = mongoose.model<IPrescriptionTemplate>("PrescriptionTemplate", TemplateSchema);
