@@ -12,6 +12,7 @@ export interface IUser extends Document {
   password: string;
   roles: Role[];
   isActive: boolean;
+  paymentStatus: "paid" | "unpaid";
   doctorId?: mongoose.Types.ObjectId;
 
   clinicName?: string;
@@ -29,6 +30,8 @@ const userSchema = new Schema<IUser>({
   roles: { type: [String], enum: Object.values(Role), default: [Role.DOCTOR] },
   isActive: { type: Boolean, default: true },
   doctorId: { type: Schema.Types.ObjectId, ref: "User", default: null },
+
+  paymentStatus: { type: String, enum: ["paid", "unpaid"], default: "unpaid" },
 
   clinicName: { type: String, default: "" },
   clinicAddress: { type: String, default: "" },

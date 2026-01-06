@@ -26,6 +26,7 @@ export const registerDoctor = async (req: Request, res: Response) => {
       email,
       password: hash,
       roles: [Role.DOCTOR],
+      paymentStatus: "unpaid"
     });
 
     res.status(201).json({ message: "Doctor registered successfully" });
@@ -58,11 +59,17 @@ export const login = async (req: Request, res: Response) => {
 
     res.status(200).json({
       message: "success",
-      data: { 
-          email: user.email, 
-          roles: user.roles, 
-          accessToken, 
-          refreshToken 
+      data: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          roles: user.roles,
+          paymentStatus: user.paymentStatus,
+          clinicName: user.clinicName,
+          clinicAddress: user.clinicAddress,
+          profileImage: user.profileImage,
+          accessToken,
+          refreshToken
       },
     });
   } catch (err) {

@@ -6,17 +6,23 @@ import authRouter from "./routes/auth";
 import staffRouter from "./routes/staff";
 import visitRouter from "./routes/visits";
 import templateRouter from "./routes/templates";
+import paymentRouter from "./routes/payment";
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
+
+// notify awanne form data widiyata
+app.use(express.urlencoded({ extended: true }));
+
 app.use(cors({ origin: ["http://localhost:5173"] }));
 
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/staff", staffRouter);
 app.use("/api/v1/visits", visitRouter);
 app.use("/api/v1/templates", templateRouter);
+app.use("/api/v1/payment", paymentRouter);
 
 mongoose
   .connect(process.env.MONGO_URL as string)
