@@ -16,7 +16,7 @@ app.use(express.json());
 // notify awanne form data widiyata
 app.use(express.urlencoded({ extended: true }));
 
-app.use(cors({ origin: ["http://localhost:5173"] }));
+app.use(cors({ origin: ["http://localhost:5173", "ugliest-alexina-shehanproject-b5ec33ba.koyeb.app"] }));
 
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/staff", staffRouter);
