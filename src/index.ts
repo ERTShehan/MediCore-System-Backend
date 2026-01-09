@@ -16,7 +16,11 @@ app.use(express.json());
 // notify awanne form data widiyata
 app.use(express.urlencoded({ extended: true }));
 
-app.use(cors({ origin: ["http://localhost:5173", "https://medicore-ashy.vercel.app/"] }));
+app.use(cors({
+  origin: ["http://localhost:5173", "https://medicore-ashy.vercel.app"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
 
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/staff", staffRouter);
