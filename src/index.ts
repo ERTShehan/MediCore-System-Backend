@@ -16,13 +16,17 @@ app.use(express.json());
 // notify awanne form data widiyata
 app.use(express.urlencoded({ extended: true }));
 
-app.use(cors({ origin: ["http://localhost:5173", "https://ugliest-alexina-shehanproject-b5ec33ba.koyeb.app"] }));
+app.use(cors({ origin: ["http://localhost:5173", "https://medicore-ashy.vercel.app/"] }));
 
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/staff", staffRouter);
 app.use("/api/v1/visits", visitRouter);
 app.use("/api/v1/templates", templateRouter);
 app.use("/api/v1/payment", paymentRouter);
+
+app.get("/", (req, res) => {
+  res.send("BE running")
+})
 
 mongoose
   .connect(process.env.MONGO_URL as string)
