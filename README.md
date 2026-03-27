@@ -72,4 +72,4 @@ This is the backend server for **MediCore**, a comprehensive Clinic Management S
 * `/api/prescription` - Adding medicines and retrieving billing details.
 
 ## 🔗 Deployed URL
-* **Backend API:** [Insert Deployed Link Here]
+* **Backend API:** https://medi-core-system-backend.vercel.app/

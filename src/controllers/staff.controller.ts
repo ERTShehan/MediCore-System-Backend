@@ -3,7 +3,7 @@ import { User, Role } from "../models/user.model";
 import bcrypt from "bcryptjs";
 import { AuthRequest } from "../middleware/auth";
 
-// 1. Create Counter Staff (Linked to Logged-in Doctor)
+// Create Counter Staff (Linked to Logged-in Doctor)
 export const createStaff = async (req: AuthRequest, res: Response) => {
   try {
     const { name, email, password } = req.body;
@@ -29,7 +29,7 @@ export const createStaff = async (req: AuthRequest, res: Response) => {
   }
 };
 
-// 2. Get All Staff (Only belonging to the logged-in Doctor)
+// Get All Staff (Only belonging to the logged-in Doctor)
 export const getMyStaff = async (req: AuthRequest, res: Response) => {
   try {
     const doctorId = req.user.sub;
@@ -46,7 +46,7 @@ export const getMyStaff = async (req: AuthRequest, res: Response) => {
   }
 };
 
-// 3. Update Staff Details
+// Update Staff Details
 export const updateStaff = async (req: AuthRequest, res: Response) => {
     try {
         const { id } = req.params; // Staff ID
@@ -66,7 +66,7 @@ export const updateStaff = async (req: AuthRequest, res: Response) => {
     }
 };
 
-// 4. Delete Staff
+// Delete Staff
 export const deleteStaff = async (req: AuthRequest, res: Response) => {
     try {
         const { id } = req.params;
@@ -83,7 +83,7 @@ export const deleteStaff = async (req: AuthRequest, res: Response) => {
     }
 };
 
-// 5. Toggle Status (Active / Inactive)
+// Toggle Status (Active / Inactive)
 export const toggleStaffStatus = async (req: AuthRequest, res: Response) => {
     try {
         const { id } = req.params;

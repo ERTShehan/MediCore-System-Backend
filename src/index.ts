@@ -18,7 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(cors({
   origin: ["http://localhost:5173", "https://medicore-ashy.vercel.app"],
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
